@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
+var request = require('request');
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -33,10 +34,6 @@ exports.readListOfUrls = function(callback) {
 		if (err) throw err;
 
 		var urlArray = data.toString().split('\n');
-		// console.log("data", data.toString().split('\n'));
-        
-        // res.write(data);
-        // res.end();
         callback(urlArray);
     });
   
@@ -44,7 +41,6 @@ exports.readListOfUrls = function(callback) {
 
 exports.isUrlInList = function(url, callback) {
 	exports.readListOfUrls(function(urls) {
-	  // console.log('urls', urls);
 	  callback(_.contains(urls, url));
     });
 };
@@ -56,14 +52,35 @@ exports.addUrlToList = function(url, callback) {
     console.log('Saved!');
   });
   exports.readListOfUrls(callback);
-
-  // exports.readListOfUrls(function(urls) {
-  //   exports.isUrlInList(url, callback);
-  // });
 };
 
 exports.isUrlArchived = function(url, callback) {
+  fs.exists(path.join(exports.paths.archivedSites, url), function(exists) { 
+    callback(!!exists);
+  }); 
 };
 
 exports.downloadUrls = function(urls) {
+  // urls.forEach(url => console.log(exports.paths.archivedSites + '/' + url));
+  urls.forEach(url => {	
+  	//create the file and write the data
+     var writeStream = fs.createWriteStream(exports.paths.archivedSites + '/' + url);
+     request('http://' + url).pipe(writeStream);
+  });
+
+
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
